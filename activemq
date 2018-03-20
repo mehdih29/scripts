@@ -1,8 +1,31 @@
+
+*********         Brokers         *************
+
 read/org.apache.activemq:type=Broker,brokerName=localhost,service=Health/CurrentStatus
 read/org.apache.activemq:type=Broker,brokerName=localhost/StorePercentUsage
 read/org.apache.activemq:type=Broker,brokerName=localhost/TotalProducerCount
 read/org.apache.activemq:type=Broker,brokerName=localhost/TotalConsumerCount
 
+
+*********         Queues         ****************
+org.apache.activemq:type=Broker,brokerName=amq,destinationType=Queue,destinationName=MyAwesomeQueue
+Example: 
+read/org.apache.activemq:type=Broker,brokerName=amq,destinationType=Queue,destinationName=MyAwesomeQueue/QueueSize,CursorMemoryUsage
+
+
 A voir
 
 read/org.apache.activemq:type=Broker,brokerName=localhost/Topics
+
+
+telegraf kafka consumer
+
+[[inputs.kafka_consumer]]
+  ## topic(s) to consume
+  topics = ["telegraf"]
+  brokers = ["localhost:9092"]
+  ## the name of the consumer group
+  consumer_group = "telegraf_metrics_consumers"
+  ## Offset (must be either "oldest" or "newest")
+  offset = "oldest"
+  data_format = "influx"
