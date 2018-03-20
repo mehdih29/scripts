@@ -16,16 +16,3 @@ read/org.apache.activemq:type=Broker,brokerName=amq,destinationType=Queue,destin
 A voir
 
 read/org.apache.activemq:type=Broker,brokerName=localhost/Topics
-
-
-telegraf kafka consumer
-
-[[inputs.kafka_consumer]]
-  ## topic(s) to consume
-  topics = ["telegraf"]
-  brokers = ["localhost:9092"]
-  ## the name of the consumer group
-  consumer_group = "telegraf_metrics_consumers"
-  ## Offset (must be either "oldest" or "newest")
-  offset = "oldest"
-  data_format = "influx"
