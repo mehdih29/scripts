@@ -1,0 +1,138 @@
+filter {
+    grok {
+ match => { "message" => "%{SYSLOGTIMESTAMP:syslog_timestamp} %{SYSLOGHOST:syslog_hostname} \[%{DATA}\] %{DATA} %{WORD:type} \"userText\":\"%{DATA:userText}\",\"prduction\":%{NUMBER:prduction:int},\"version\":%{NUMBER:version:int},\"bool\":%{DATA:bool},\{\"geoPoint\":\{\"location\":\"%{DATA:location}\",\"ip\":\"%{IP:ip}\",\"latitude\":%{BASE10NUM:latitude},\"longitude\":%{BASE10NUM:longitude},(\"optionalField\":%{BASE10NUM:optionalField},)?\}\}" }
+ add_field => [ "read_es", "%{@timestamp}" ]
+    }
+    date {
+      match => [ "syslog_timestamp", "MMM  d HH:mm:ss", "MMM dd HH:mm:ss" ]
+    }
+    mutate
+    {
+       remove_field => [ "message" ]
+       remove_field => [ "syslog_timestamp" ]
+ convert => ["bool","boolean"]
+ rename => { "ip" => "[geoPoint][ip]" }
+ rename => { "latitude" => "[geoPoint][latitude]" }
+ rename => { "longitude" => "[geoPoint][longitude]" }
+ rename => { "location" => "[geoPoint][location]" }
+    }
+}
+output {
+  if([type] == "my_type") {
+    elasticsearch {
+        hosts => ["elastichost:9200","198.XXX.XXX.XX:9200", "199.XXX.XXX.XX:9200"]
+        index => "my_index_name_%{+YYYYMMdd}"
+    }
+    stdout { codec => rubydebug }
+  }
+}
+
+
+
+
+
+**************
+
+
+curl -XPUT  http://198.XXX.XXX.XX:9200/_template/template_my_index -d'{
+ "order": 0,
+ "template": "my_index_name_*",
+ "settings": {
+  "index": {
+   "number_of_shards": "3",
+   "number_of_replicas": "1",
+   "refresh_interval": "10s"
+  }
+ },
+ "mappings": {
+  "my_type": {
+   "properties": {
+    "userText": {
+     "type": "text",
+     "fields": {
+      "keyword": {
+       "ignore_above": 256,
+       "type": "keyword"
+      }
+     }
+    },
+    "prduction": {
+     "type": "integer"
+    },
+    "type": {
+     "type": "text",
+     "fields": {
+      "keyword": {
+       "ignore_above": 256,
+       "type": "keyword"
+      }
+     }
+    },
+    "path": {
+     "type": "text",
+     "fields": {
+      "keyword": {
+       "ignore_above": 256,
+       "type": "keyword"
+      }
+     }
+    },
+    "bool": {
+     "type": "text",
+     "fields": {
+      "keyword": {
+       "ignore_above": 32,
+       "type": "keyword"
+      }
+     }
+    },
+    "version": {
+     "type": "integer"
+    },
+    "geoPoint": {
+     "properties": {
+      "optionalField": {
+       "type": "float"
+      },
+      "latitude": {
+       "type": "float"
+      },
+      "ip": {
+       "type": "ip"
+      },
+      "location": {
+       "type": "geo_point"
+      },
+      "longitude": {
+       "type": "float"
+      }
+     }
+    },
+    "tags": {
+     "type": "text",
+     "fields": {
+      "keyword": {
+       "ignore_above": 256,
+       "type": "keyword"
+      }
+     }
+    },
+    "read_es": {
+     "type": "date"
+    },
+    "syslog_hostname": {
+     "type": "text",
+     "fields": {
+      "keyword": {
+       "ignore_above": 256,
+       "type": "keyword"
+      }
+     }
+    }
+   }
+  }
+ },
+ "aliases": {}
+}'
+
+
