@@ -1,0 +1,8 @@
+read/org.apache.activemq:type=Broker,brokerName=localhost,service=Health/CurrentStatus
+read/org.apache.activemq:type=Broker,brokerName=localhost/StorePercentUsage
+read/org.apache.activemq:type=Broker,brokerName=localhost/TotalProducerCount
+read/org.apache.activemq:type=Broker,brokerName=localhost/TotalConsumerCount
+
+A voir
+
+read/org.apache.activemq:type=Broker,brokerName=localhost/Topics
