@@ -1,0 +1,2 @@
+****** CQLSH    *************
+cqlsh -e "use system; COPY local TO STDOUT with HEADER = true;"
