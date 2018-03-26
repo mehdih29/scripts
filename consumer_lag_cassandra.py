@@ -2,9 +2,6 @@ import subprocess
 import argparse
 import csv 
 
-# VERSION 0.1
-# from https://github.com/paksu/kafka-consumer-lag-telegraf-reporter
-
 OUTPUT_KEYS = ['topic', 'partition', 'current_offset', 'log_end_offset', 'lag']
 
 
@@ -21,13 +18,13 @@ def parse_output(input_from_checker):
     Parses the output from kafka-consumer-groups.sh, converts metrics in to integers and returns
     a list of dicts from each row as a response
     """
-
+    columns = ['key', 'bootstrapped', 'broadcast_address', 'cluster_name', 'cql_version', 'data_center', 'gossip_generation', 'host_id', 'listen_address', 'native_protocol_version', 'partitioner', 'rack', 'release_version', 'rpc_address', 'schema_version', 'thrift_version', 'tokens', 'truncated_at']
     output = []
-    readCSV = csv.reader(input_from_checker, delimiter=',')
+    #readCSV = csv.reader(input_from_checker, delimiter=',')
+    readCSV = csv.DictReader(input_from_checker,  columns, delimiter=',')
     for row in readCSV:
-        print(row)
-        print(row[0])
-        print(row[0],row[1],row[2],)
+        for column in columns:
+            print(row[column])
 
     return output
 
@@ -50,7 +47,8 @@ def get_cassandra(args):
 
     params = [
         'use {};'.format(args.cassandra_keyspace),
-        'COPY {} TO STDOUT with HEADER = true;'.format(args.cassandra_table)
+        'COPY {} TO STDOUT;'.format(args.cassandra_table)
+        #'COPY {} TO STDOUT with HEADER = true;'.format(args.cassandra_table)
     ]
 
     cmd = subprocess.Popen('cqlsh -e "'+ " ".join(params) + '"', shell=True, stdout=subprocess.PIPE,  stderr=subprocess.PIPE)
