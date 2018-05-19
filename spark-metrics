@@ -1,0 +1,30 @@
+./bin/spark-submit --jars /home/mehdi/app/spark-2.2.1-bin-hadoop2.7/jars/metrics-influxdb-1.2.3-SNAPSHOT.jar,/home/mehdi/app/spark-2.2.1-bin-hadoop2.7/jars/spark-influx-sink.jar --conf spark.driver.extraClassPath=spark-influx-sink.jar:metrics-influxdb-1.2.3-SNAPSHOT.jar --conf spark.executor.extraClassPath=spark-influx-sink.jar:metrics-influxdb-1.2.3-SNAPSHOT.jar --class  org.apache.spark.examples.streaming.NetworkWordCount  ./examples/jars/spark-examples_2.11-2.2.1.jar localhost 9999
+
+
+
+
+
+# Enable InfluxDB
+*.sink.influx.class=org.apache.spark.metrics.sink.InfluxDbSink
+*.sink.influx.protocol=http
+*.sink.influx.host=localhost
+*.sink.influx.port=8086
+*.sink.influx.database=metricsdb
+
+# Enable jvm source for instance master, worker, driver and executor
+master.source.jvm.class=org.apache.spark.metrics.source.JvmSource
+worker.source.jvm.class=org.apache.spark.metrics.source.JvmSource
+driver.source.jvm.class=org.apache.spark.metrics.source.JvmSource
+executor.source.jvm.class=org.apache.spark.metrics.source.JvmSource
+
+
+
+[agent]
+  interval = "10s"
+  omit_hostname = true
+
+[[outputs.file]]
+  files = ["stdout", "/tmp/metrics.out"]
+
+[[inputs.http_listener]]
+  service_address = ":8086"
